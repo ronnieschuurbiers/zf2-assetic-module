@@ -161,7 +161,7 @@ Zend 2 Assetic uses Zend's plugins to display the assets.
 
 To display them in the `<head>`:
 
-``` php
+``` html
 <head>
 	<title>ZF2 Assetic Module - Examples module</title>
 
