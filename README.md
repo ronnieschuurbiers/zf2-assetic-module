@@ -110,6 +110,12 @@ return array(
 ),
 ```
 
+| **Key** | **Description** |
+|-----------------|-----------------------------------|
+| application_root  | Absolute path to the application's root. |
+| webserver         | Path to the location on the webserver where the generated assets will be placed, relative to the application root. |
+| web               | Path to the location on the website where the generated assets will be accessed by the website, relative to the website's root url. |
+
 
 
 
