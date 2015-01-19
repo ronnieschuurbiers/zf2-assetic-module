@@ -164,13 +164,11 @@ To display them in the `<head>`:
 ``` html
 <head>
 	<title>ZF2 Assetic Module - Examples module</title>
-``` php
 <?php
 echo $this->headLink();
 echo $this->headScript();
 echo $this->headStyle();
 ?>
-``` html
 </head>
 ```
 
@@ -178,9 +176,7 @@ To display them somewhere in the `<body>`:
 
 ``` html
 <div>
-``` php
 <?php echo $this->assetHelper()->injectAsset('asset_name_here'); ?>
-``` html
 </div>
 ```
 
