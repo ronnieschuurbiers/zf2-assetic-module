@@ -164,14 +164,12 @@ To display them in the `<head>`:
 ``` html
 <head>
 	<title>ZF2 Assetic Module - Examples module</title>
-```
 ``` php
 <?php
 echo $this->headLink();
 echo $this->headScript();
 echo $this->headStyle();
 ?>
-```
 ``` html
 </head>
 ```
@@ -180,10 +178,8 @@ To display them somewhere in the `<body>`:
 
 ``` html
 <div>
-```
 ``` php
 <?php echo $this->assetHelper()->injectAsset('asset_name_here'); ?>
-```
 ``` html
 </div>
 ```
@@ -201,6 +197,6 @@ This following plugins are supported:
 
 
 
-### Support for other assets such as images and favicon
+### Assets support
 
 This module was initially designed for CSS, Less and JavaScript assets. However it should be possible to use other assets like images and favicons. Please provide feedback.
