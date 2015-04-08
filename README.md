@@ -12,7 +12,7 @@ This project was loosely inspired by [AsseticBundle](https://github.com/widmogro
  * Keep source files with the module rather than everything in the `public` directory;
  * Use Assetic filters;
  * Merge assets;
- * Link assets in the <head> and <body> of a page using Zend 2 plugins;
+ * Link assets in the `<head>` and `<body>` of a page using Zend 2 plugins;
  * Display assets as plain text instead of links;
  * Cache assets to reduce server load;
  * Force browsers to refresh their cache after an asset was updated.
