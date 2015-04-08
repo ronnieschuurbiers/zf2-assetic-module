@@ -191,7 +191,7 @@ This following plugins are supported:
 | InlineScript*   | `<script>`      | link             |
 | InlineScript*   | `<script>`      | text             |
 
-* The asset will be displayed as link instead of text if a `target` is set in the assets configuration.
+\* The asset will be displayed as link instead of text if a `target` is set in the assets configuration.
 
 
 ### Assets support
