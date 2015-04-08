@@ -157,7 +157,7 @@ Assets are configured in any module's `module.config.php`.
 
 ## Displaying assets
 
-Zend 2 Assetic uses Zend's plugins to display the assets.
+ZF2 Assetic module uses Zend's plugins to display the assets.
 
 To display them in the `<head>`:
 
@@ -186,11 +186,12 @@ This following plugins are supported:
 |-----------------|-----------------|------------------|
 | HeadLink        | `<link>`        | link             |
 | HeadStyle       | `<style>`       | text             |
-| HeadScript      | `<script>`      | link             |
-| HeadScript      | `<script>`      | text             |
-| InlineScript    | `<script>`      | link             |
-| InlineScript    | `<script>`      | text             |
+| HeadScript*     | `<script>`      | link             |
+| HeadScript*     | `<script>`      | text             |
+| InlineScript*   | `<script>`      | link             |
+| InlineScript*   | `<script>`      | text             |
 
+* The asset will be displayed as link instead of text if a `target` is set in the assets configuration.
 
 
 ### Assets support
