@@ -20,9 +20,11 @@ This project was loosely inspired by [AsseticBundle](https://github.com/widmogro
 
 ## Installing
 
-1) Add this module to the `/vendor/` directory of your Zend 2 application.
+1) Make sure you have [Assetic](https://github.com/kriswallsmith/assetic/) added to your Zend 2 application.
 
-2) Add this module to `modules` and `module_paths` in the `application.config.php` file.
+2) Add the ZF2 Assetic module to the `/vendor/` directory of your Zend 2 application.
+
+3) Add the ZF2 Assetic module to `modules` and `module_paths` in the `application.config.php` file.
 
 ``` php
    	'modules' => array(
@@ -35,11 +37,11 @@ This project was loosely inspired by [AsseticBundle](https://github.com/widmogro
    	),
 ```
 
-3) Change the module's settings in `module.config.php`. See [Module Configuration](#module-configuration) below for options.
+4) Change the module's settings in `module.config.php`. See [Module Configuration](#module-configuration) below for options.
 
-4) Add assets to the `module.config.php` of any module that uses assets. See [Assets Configuration](#assets-configuration) below for options.
+5) Add assets to the `module.config.php` of any module that uses assets. See [Assets Configuration](#assets-configuration) below for options.
 
-5) Enjoy!
+6) Enjoy!
 
 
 
