@@ -119,18 +119,20 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 	public function addFilters($settings, $assets) {
 		$filters = array();
 
-		foreach($assets['filters'] as $filterAlias) {
-			$filterAliasNoDebug = ltrim($filterAlias, '?');
-			if(isset($settings->getFilters()[$filterAliasNoDebug])) {
-				$filters[] = $filterAlias;
-
-				if(!$this->filterManager->has($filterAliasNoDebug)) {
-					$filterClassName = $settings->getFilters()[$filterAliasNoDebug];
-					$filter = new $filterClassName();
-					$this->filterManager->set($filterAliasNoDebug, $filter);
+		if(isset($assets['filters'])) {
+			foreach($assets['filters'] as $filterAlias) {
+				$filterAliasNoDebug = ltrim($filterAlias, '?');
+				if(isset($settings->getFilters()[$filterAliasNoDebug])) {
+					$filters[] = $filterAlias;
+	
+					if(!$this->filterManager->has($filterAliasNoDebug)) {
+						$filterClassName = $settings->getFilters()[$filterAliasNoDebug];
+						$filter = new $filterClassName();
+						$this->filterManager->set($filterAliasNoDebug, $filter);
+					}
+				} else {
+					throw new \Exception('Trying to apply filter ' . $filterAliasNoDebug . ', but filter class not found in module config.');
 				}
-			} else {
-				throw new \Exception('Trying to apply filter ' . $filterAliasNoDebug . ', but filter class not found in module config.');
 			}
 		}
 
