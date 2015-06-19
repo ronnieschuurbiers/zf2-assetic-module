@@ -72,7 +72,7 @@ The ZF2 Assetic module configuration is located in: `zf2-assetic-module/config/m
 
 ### Caching
 
-The ZF2Assetic module has some basic built-in support for (server side) caching. This is disabled by default, but can be enabled in the configuration. When enabled the module will compare the last modified time of the asset in Assetic and of the asset file on the webserver. Only if the asset in Assetic is newer it will write the asset to the webserver path.
+The ZF2 Assetic module has some basic built-in support for (server side) caching. This is disabled by default, but can be enabled in the configuration. When enabled the module will compare the last modified time of the asset in Assetic and of the asset file on the webserver. Only if the asset in Assetic is newer it will write the asset to the webserver path.
 
 
 ### Cache busting
@@ -195,7 +195,7 @@ This following plugins are supported:
 
 \* The asset will be displayed as link instead of text if a `target` is set in the assets configuration.
 
-It's possible to add custom options to a HeadLink. For example this is how a favicon is added:
+It's possible to add custom options to a HeadLink with `viewHelperOptions`. For example this is how a favicon is added:
 
 ``` php
 'zf2assetic' => array(
