@@ -170,7 +170,18 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 		foreach($settings->getAssets() as $assetName => $asset) {
 			switch($asset['viewHelper']) {
 				case 'HeadLink':
-					$renderer->plugin('HeadLink')->appendStylesheet($settings->getPaths()['web'] . '/' . $this->assetManagers['build']->get($assetName)->getTargetPath());
+					$headLinkParams = array(
+						'href' => $settings->getPaths()['web'] . '/' . $this->assetManagers['build']->get($assetName)->getTargetPath(),
+						// Let's assume it's css.
+						'rel' => 'stylesheet',
+						'type' => 'text/css'
+					);
+					if(isset($asset['viewHelperOptions'])) {
+						$headLinkParams = array_merge($headLinkParams, $asset['viewHelperOptions']);
+					}
+					// We're not using appendStylesheet, because it will force rel='stylesheet' even when it's overriden in the $extras parameter.
+					$headLink = $renderer->plugin('HeadLink');
+					$headLink($headLinkParams, 'APPEND');
 					break;
 				case 'HeadStyle':
 					$renderer->plugin('HeadStyle')->appendStyle($this->assetManagers['nobuild']->get($assetName)->dump());
