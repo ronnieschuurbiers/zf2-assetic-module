@@ -190,12 +190,30 @@ This following plugins are supported:
 |-----------------|-----------------|------------------|
 | HeadLink        | `<link>`        | link             |
 | HeadStyle       | `<style>`       | text             |
-| HeadScript*     | `<script>`      | link             |
-| HeadScript*     | `<script>`      | text             |
-| InlineScript*   | `<script>`      | link             |
-| InlineScript*   | `<script>`      | text             |
+| HeadScript*     | `<script>`      | link or text     |
+| InlineScript*   | `<script>`      | link or text     |
 
 \* The asset will be displayed as link instead of text if a `target` is set in the assets configuration.
+
+It's possible to add custom options to a HeadLink. For example this is how a favicon is added:
+
+``` php
+'zf2assetic' => array(
+	'assets' => array(
+		'favicon' => array(
+			'target' => 'favicon.ico',
+			'viewHelper' => 'HeadLink',
+			'viewHelperOptions' => array(
+				'rel' => 'shortcut icon',
+				'type' => 'image/x-icon'
+			),
+			'leafs' => array(
+				__DIR__ . '/../view/assets/favicon/favicon.ico',
+			),
+		),
+	),
+),
+```
 
 
 ### Assets support
