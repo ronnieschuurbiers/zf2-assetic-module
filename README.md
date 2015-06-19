@@ -41,7 +41,9 @@ This project was loosely inspired by [AsseticBundle](https://github.com/widmogro
 
 5) Add assets to the `module.config.php` of any module that uses assets. See [Assets Configuration](#assets-configuration) below for options.
 
-6) Enjoy!
+6) Make sure you use Zend's plugins to display the assets. See [Displaying assets](#displaying-assets) below for options.
+
+7) Enjoy!
 
 
 
