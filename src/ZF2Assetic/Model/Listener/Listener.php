@@ -7,8 +7,8 @@ use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Http\Response;
 use Zend\Mvc\MvcEvent;
 use Zend\Stdlib\CallbackHandler;
-use ZF2Assetic\Model\Factory\SettingsFactory;
-use ZF2Assetic\Model\Service\Service;
+use ZF2Assetic\Model\Service\AssetHandler;
+use ZF2Assetic\Model\Service\Settings;
 
 /**
  * The Listener controls the AssetHandler, upon activation by the dispatch event.
@@ -55,10 +55,12 @@ class Listener implements ListenerAggregateInterface
 			$e->setResponse($response);
 		}
 
-		/** @var Service $asseticService */
+		/** @var AssetHandler $asseticService */
 		$asseticService = $sm->get('ZF2Assetic\AssetHandler');
-		/** @var SettingsFactory $settings */
+		/** @var Settings $settings */
 		$settings = $sm->get('ZF2Assetic\Settings');
+
+		$asseticService->cleanup($settings);
 
 		$asseticService->buildAssets($settings);
 

@@ -55,8 +55,9 @@ The ZF2 Assetic module configuration is located in: `zf2-assetic-module/config/m
 ``` php
 'zf2assetic' => array(
 	'cache'						=> false,
-	'cacheBusting'				=> false,
+	'cacheBusting'				=> 'querystring',
 	'debug'						=> false,
+	'cleanup'					=> true,
 
 	'filters' => array(
 		'CssMinFilter'			=> 'Assetic\Filter\CssMinFilter',
@@ -77,9 +78,19 @@ The ZF2 Assetic module has some basic built-in support for (server side) caching
 
 ### Cache busting
 
-The aim of cache busting is to prevent a browser from caching assets. This works client side, for server side caching see below. A CacheBustingWorker forces the browser to refresh the website's cached assets by renaming them. This can be enabled by turning on caching in the configuration. When enabled the module will add the last modified time to the file name. For example 'scripts.js' will be renamed to 'scripts_1421319156.js'.
+The aim of cache busting is to prevent a browser from caching assets (client side). The ZF2 Assetic module has two cache busting options:
 
-Please note: The module does not take care of cleaning up old asset files.
+| **Config key** | **Config value** | **Description** |
+|----------------|------------------|-----------------|
+| `cacheBusting` | `filename`       | The last modified time of the asset file is added to the file name. For example 'scripts.js' will be renamed to 'scripts_1421319156.js'. |
+| `cacheBusting` | `querystring`    | The last modified time of the asset file is added as query string. For example 'scripts.js' will be included into the html as 'scripts.js?lm=1421319156' |
+
+
+### Clean up
+
+The `cleanup` config option will make sure the ZF2 Assetic module will remove any older asset or other files in the directory specified with the `webserver` path config option. Empty folders are also automatically removed.
+
+Please note: Clean up will not work when using the cache busting `filename` option (because the files are getting a unique name and ZF2 Assetic module is not keeping a list of these names, it can't possibly know what files not to remove).
 
 
 ### Debugging
@@ -216,6 +227,8 @@ It's possible to add custom options to a HeadLink with `viewHelperOptions`. For 
 ```
 
 
-### Assets support
+### Future module extensions/improvements
 
-This module was initially designed for CSS, Less and JavaScript assets. However it should be possible to use other assets like images and favicons. Please provide feedback.
+* Support for images.
+* Generic path resolver.
+* Making clean up work with file name cache busting.

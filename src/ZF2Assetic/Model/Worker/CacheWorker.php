@@ -23,7 +23,7 @@ class CacheWorker implements WorkerInterface {
 			$lastModified = $assetOrLeaf->getLastModified();
 
 			if ($lastModified !== null) {
-				$path =  $filename . '_' . $lastModified . '.' . $ext;
+				$path = $filename . '_' . $lastModified . '.' . $ext;
 				$assetOrLeaf->setTargetPath($path);
 			}
 		}

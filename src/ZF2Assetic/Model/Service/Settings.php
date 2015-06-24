@@ -13,7 +13,8 @@ class Settings {
 
 	protected $debug = false;
 	protected $cache = false;
-	protected $cacheBusting = false;
+	protected $cacheBusting = null;
+	protected $cleanUp = false;
 	protected $paths = array();
 	protected $assets = array();
 
@@ -25,7 +26,10 @@ class Settings {
 	public function setCache($flag) { $this->cache = (bool) $flag; }
 
 	public function getCacheBusting() { return $this->cacheBusting; }
-	public function setCacheBusting($flag) { $this->cacheBusting = (bool) $flag; }
+	public function setCacheBusting($cacheBusting) { $this->cacheBusting = $cacheBusting; }
+
+	public function getCleanUp() { return $this->cleanUp; }
+	public function setCleanUp($flag) { $this->cleanUp = (bool) $flag; }
 
 	public function getFilters() { return $this->filters; }
 	public function setFilters(array $filters) { $this->filters = $filters; }

@@ -8,7 +8,6 @@ use Assetic\FilterManager;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Renderer\RendererInterface;
-use ZF2Assetic\Model\Factory\SettingsFactory;
 
 /**
  * The AssetHandler builds all the assets, writes them to the webserver and injects them into the application.
@@ -29,12 +28,12 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 
 	/**
 	 * @param $id string
-	 * @param $settings SettingsFactory
+	 * @param $settings Settings
 	 */
 	public function createAssetFactoryWithManagers($id, $settings) {
 		$this->assetFactories[$id]	= new AssetFactory($settings->getPaths()['application_root']);
 
-		if ($settings->getCacheBusting()) {
+		if($settings->getCache() && $settings->getCacheBusting() !== null && $settings->getCacheBusting() == 'filename') {
 			$worker = $this->getServiceLocator()->get('ZF2Assetic\CacheWorker');
 			$this->assetFactories[$id]->addWorker($worker);
 		}
@@ -44,6 +43,58 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 		$this->assetFactories[$id]->setAssetManager($this->assetManagers[$id]);
 		$this->assetFactories[$id]->setFilterManager($this->filterManager);
 		$this->assetFactories[$id]->setDebug($settings->getDebug());
+	}
+
+	/**
+	 * @param $settings Settings
+	 * @throws \Exception
+	 */
+	public function cleanup($settings) {
+		if($settings->getCleanUp()) {
+			if($settings->getCacheBusting() === null || $settings->getCacheBusting() !== null && $settings->getCacheBusting() != 'filename') {
+				$assetTargets = array();
+				$dir = $settings->getPaths()['application_root'] . $settings->getPaths()['webserver'];
+
+				foreach($settings->getAssets() as $asset) {
+					$assetTargets[] = $dir . '/' . $asset['target'];
+				}
+
+				// Delete files
+				if($dirPath = realpath($dir)) {
+					$di = new \RecursiveDirectoryIterator($dirPath);
+					$di->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
+					foreach (new \RecursiveIteratorIterator($di) as $filelocation => $file) {
+						if(!in_array($filelocation, $assetTargets)) {
+							if($path = realpath($filelocation)){
+								if(file_exists($path)){
+									if(is_writable($path)){
+										if(!unlink($path)){
+											throw new \Exception('Couldn\'t delete file ' . $path . '.');
+										}
+									} else {
+										throw new \Exception('Not enough access to delete file ' . $path . '.');
+									}
+								}
+							} else {
+								throw new \Exception('Couldn\'t access file ' . $filelocation . '.');
+							}
+						}
+					}
+
+					// Delete empty directories
+					$di = new \RecursiveDirectoryIterator($dirPath, \RecursiveDirectoryIterator::SKIP_DOTS);
+					$directories = new \ParentIterator($di);
+					foreach (new \RecursiveIteratorIterator($directories, \RecursiveIteratorIterator::CHILD_FIRST) as $dir) {
+						if (iterator_count($di->getChildren()) === 0) {
+							$realpath = realpath($dir->getPathname());
+							rmdir($realpath);
+						}
+					}
+				} else {
+					throw new \Exception('Couldn\'t access directory ' . $dir . '.');
+				}
+			}
+		}
 	}
 
 	/**
@@ -99,7 +150,7 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 	/**
 	 * AssetCache/FilesystemCache generates extension-less files in the cache dir. It's not versatile enough so we use custom code in the Writer functions.
 	 *
-	 * @param $settings
+	 * @param $settings Settings
 	 * @param $asset
 	 * @return mixed
 	 */
@@ -124,7 +175,7 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 				$filterAliasNoDebug = ltrim($filterAlias, '?');
 				if(isset($settings->getFilters()[$filterAliasNoDebug])) {
 					$filters[] = $filterAlias;
-	
+
 					if(!$this->filterManager->has($filterAliasNoDebug)) {
 						$filterClassName = $settings->getFilters()[$filterAliasNoDebug];
 						$filter = new $filterClassName();
@@ -164,31 +215,20 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 
 	/**
 	 * @param $settings Settings
-	 * @param $renderer
+	 * @param $renderer RendererInterface
 	 */
 	public function injectAssets($settings, $renderer) {
 		foreach($settings->getAssets() as $assetName => $asset) {
 			switch($asset['viewHelper']) {
 				case 'HeadLink':
-					$headLinkParams = array(
-						'href' => $settings->getPaths()['web'] . '/' . $this->assetManagers['build']->get($assetName)->getTargetPath(),
-						// Let's assume it's css.
-						'rel' => 'stylesheet',
-						'type' => 'text/css'
-					);
-					if(isset($asset['viewHelperOptions'])) {
-						$headLinkParams = array_merge($headLinkParams, $asset['viewHelperOptions']);
-					}
-					// We're not using appendStylesheet, because it will force rel='stylesheet' even when it's overriden in the $extras parameter.
-					$headLink = $renderer->plugin('HeadLink');
-					$headLink($headLinkParams, 'APPEND');
+					$renderer->plugin('HeadLink')->appendStylesheet($this->formatAssetLocation($settings, $assetName));
 					break;
 				case 'HeadStyle':
 					$renderer->plugin('HeadStyle')->appendStyle($this->assetManagers['nobuild']->get($assetName)->dump());
 					break;
 				case 'HeadScript':
 					if(isset($asset['target'])) {
-						$renderer->plugin('HeadScript')->appendFile($settings->getPaths()['web'] . '/' . $this->assetManagers['build']->get($assetName)->getTargetPath());
+						$renderer->plugin('HeadScript')->appendFile($this->formatAssetLocation($settings, $assetName));
 					} else {
 						$renderer->plugin('HeadScript')->appendScript($this->assetManagers['nobuild']->get($assetName)->dump());
 					}
@@ -209,5 +249,16 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 		} else {
 			return $renderer->plugin('InlineScript')->setScript($this->assetManagers['nobuild']->get($assetName)->dump());
 		}
+	}
+
+	/**
+	 * @param $settings Settings
+	 * @param $assetName
+	 * @return string Asset file location
+	 */
+	protected function formatAssetLocation($settings, $assetName) {
+		$assetLocation = $settings->getPaths()['web'] . '/' . $this->assetManagers['build']->get($assetName)->getTargetPath();
+		if($settings->getCache() && $settings->getCacheBusting() !== null && $settings->getCacheBusting() == 'querystring') { $assetLocation .= '?lm=' . $this->assetManagers['build']->get($assetName)->getLastModified(); }
+		return $assetLocation;
 	}
 }

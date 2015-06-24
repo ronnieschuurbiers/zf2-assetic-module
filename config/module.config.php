@@ -16,12 +16,14 @@ return array(
 	),
 	'zf2assetic' => array(
 		'cache'						=> false,
-		'cacheBusting'				=> false,
+		'cacheBusting'				=> 'querystring',
 		'debug'						=> false,
+		'cleanup'					=> false,
 
 		'filters' => array(
 			'CssMinFilter'			=> 'Assetic\Filter\CssMinFilter',
 			'JSMinFilter'			=> 'Assetic\Filter\JSMinFilter',
+			'LessphpFilter'			=> 'Assetic\Filter\LessphpFilter',
 		),
 
 		'paths' => array(
