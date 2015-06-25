@@ -207,7 +207,7 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 				if (!$assetExsists || $assetChanged) {
 					$writer->writeAsset($asset);
 				}
-			} else if($assetExsists && $settings->getAllowOverwrite() || !$settings->getAllowOverwrite()) {
+			} else if($assetExsists && $settings->getAllowOverwrite() || $settings->getAllowOverwrite()) {
 				$writer->writeAsset($asset);
 			}
 		}
