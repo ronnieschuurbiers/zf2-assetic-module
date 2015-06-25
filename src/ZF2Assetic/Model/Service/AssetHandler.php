@@ -200,14 +200,14 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 		foreach($this->assetManagers['build']->getNames() as $assetName) {
 			$asset = $this->assetManagers['build']->get($assetName);
 
+			$assetExsists = is_file($dir . '/' . $asset->getTargetPath());
 			if($settings->getCache()) {
-				$assetExsists = is_file($dir . '/' . $asset->getTargetPath());
 				$assetChanged = $assetExsists && filemtime($dir . '/' . $asset->getTargetPath()) < $asset->getLastModified();
 
 				if (!$assetExsists || $assetChanged) {
 					$writer->writeAsset($asset);
 				}
-			} else {
+			} else if($assetExsists && $settings->getAllowOverwrite() || !$settings->getAllowOverwrite()) {
 				$writer->writeAsset($asset);
 			}
 		}

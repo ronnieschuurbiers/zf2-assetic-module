@@ -12,6 +12,7 @@ use Zend\Stdlib;
 class Settings {
 
 	protected $debug = false;
+	protected $allowOverwrite = true;
 	protected $cache = false;
 	protected $cacheBusting = null;
 	protected $cleanUp = false;
@@ -21,6 +22,9 @@ class Settings {
 
 	public function getDebug() { return $this->debug; }
 	public function setDebug($flag) { $this->debug = (bool) $flag; }
+
+	public function getAllowOverwrite() { return $this->allowOverwrite; }
+	public function setAllowOverwrite($flag) { $this->allowOverwrite = (bool) $flag; }
 
 	public function getCache() { return $this->cache; }
 	public function setCache($flag) { $this->cache = (bool) $flag; }

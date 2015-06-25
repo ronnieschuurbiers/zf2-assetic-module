@@ -15,6 +15,7 @@ return array(
 		),
 	),
 	'zf2assetic' => array(
+		'allowOverwrite'			=> false,
 		'cache'						=> false,
 		'cacheBusting'				=> 'querystring',
 		'debug'						=> false,
