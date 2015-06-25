@@ -33,7 +33,7 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 	public function createAssetFactoryWithManagers($id, $settings) {
 		$this->assetFactories[$id]	= new AssetFactory($settings->getPaths()['application_root']);
 
-		if($settings->getCache() && $settings->getCacheBusting() !== null && $settings->getCacheBusting() == 'filename') {
+		if($settings->getCacheBusting() !== null && $settings->getCacheBusting() == 'filename') {
 			$worker = $this->getServiceLocator()->get('ZF2Assetic\CacheWorker');
 			$this->assetFactories[$id]->addWorker($worker);
 		}
@@ -129,7 +129,7 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 	}
 
 	/**
-	 * @param $settings
+	 * @param $settings Settings
 	 * @param $assetName
 	 * @param $asset
 	 * @return bool
@@ -221,7 +221,18 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 		foreach($settings->getAssets() as $assetName => $asset) {
 			switch($asset['viewHelper']) {
 				case 'HeadLink':
-					$renderer->plugin('HeadLink')->appendStylesheet($this->formatAssetLocation($settings, $assetName));
+					$headLinkParams = array(
+						'href' => $this->formatAssetLocation($settings, $assetName),
+						// Let's assume it's css.
+						'rel' => 'stylesheet',
+						'type' => 'text/css'
+					);
+					if(isset($asset['viewHelperOptions'])) {
+						$headLinkParams = array_merge($headLinkParams, $asset['viewHelperOptions']);
+					}
+					// We're not using appendStylesheet, because it will force rel='stylesheet' even when it's overriden in the $extras parameter.
+					$headLink = $renderer->plugin('HeadLink');
+					$headLink($headLinkParams, 'APPEND');
 					break;
 				case 'HeadStyle':
 					$renderer->plugin('HeadStyle')->appendStyle($this->assetManagers['nobuild']->get($assetName)->dump());
@@ -258,7 +269,7 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 	 */
 	protected function formatAssetLocation($settings, $assetName) {
 		$assetLocation = $settings->getPaths()['web'] . '/' . $this->assetManagers['build']->get($assetName)->getTargetPath();
-		if($settings->getCache() && $settings->getCacheBusting() !== null && $settings->getCacheBusting() == 'querystring') { $assetLocation .= '?lm=' . $this->assetManagers['build']->get($assetName)->getLastModified(); }
+		if($settings->getCacheBusting() !== null && $settings->getCacheBusting() == 'querystring') { $assetLocation .= '?lm=' . $this->assetManagers['build']->get($assetName)->getLastModified(); }
 		return $assetLocation;
 	}
 }
