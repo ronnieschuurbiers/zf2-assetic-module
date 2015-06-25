@@ -54,6 +54,7 @@ The ZF2 Assetic module configuration is located in: `zf2-assetic-module/config/m
 
 ``` php
 'zf2assetic' => array(
+	'allowOverwrite'			=> true,
 	'cache'						=> false,
 	'cacheBusting'				=> 'querystring',
 	'debug'						=> false,
@@ -70,6 +71,11 @@ The ZF2 Assetic module configuration is located in: `zf2-assetic-module/config/m
 	),
 ),
 ```
+
+### Allow overwriting
+
+If caching is disabled, the ZF2 Assetic module will write the assets to the webserver on every request. To only write assets that do not exist yet, enable the `allowOverwrite` config option.
+
 
 ### Caching
 
