@@ -23,11 +23,14 @@ class Module implements
      * @param \Zend\EventManager\EventInterface $e
      * @return array
      */
-    public function onBootstrap(EventInterface $e)
-    {
+    public function onBootstrap(EventInterface $e) {
 		$serviceManager = $e->getApplication()->getServiceManager();
 		$eventManager = $e->getTarget()->getEventManager();
 		$eventManager->attach(new Listener($serviceManager));
+
+		// Initialize the Settings object.
+		$config = $serviceManager->get('Configuration');
+		$serviceManager->get('ZF2Assetic\Settings')->init($config['zf2assetic']);
     }
 
     /**
@@ -35,8 +38,7 @@ class Module implements
      *
      * @return array|\Traversable
      */
-    public function getConfig()
-    {
+    public function getConfig() {
         return array_merge(
             include __DIR__ . '/config/module.config.php'
         );

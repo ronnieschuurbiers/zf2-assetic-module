@@ -136,12 +136,15 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 	 */
 	protected function leafsExist($settings, $assetName, $asset) {
 		foreach($asset['leafs'] as $leaf) {
-			if(!file_exists($leaf)) {
-				trigger_error("Leaf '" . $leaf . "' in asset '" . $assetName . "' could not be found", E_USER_NOTICE);
-				$assets = $settings->getAssets();
-				unset($assets[$assetName]);
-				$settings->setAssets($assets);
-				return false;
+			// We can't check wildcards
+			if(strpos($leaf, '*') === false) {
+				if(!file_exists($leaf)) {
+					trigger_error("Leaf '" . $leaf . "' in asset '" . $assetName . "' could not be found", E_USER_NOTICE);
+					$assets = $settings->getAssets();
+					unset($assets[$assetName]);
+					$settings->setAssets($assets);
+					return false;
+				}
 			}
 		}
 		return true;

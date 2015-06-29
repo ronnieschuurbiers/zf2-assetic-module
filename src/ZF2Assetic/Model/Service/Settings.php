@@ -11,14 +11,19 @@ use Zend\Stdlib;
  */
 class Settings {
 
+	protected $disabled = false;
 	protected $debug = false;
 	protected $allowOverwrite = true;
 	protected $cache = false;
 	protected $cacheBusting = null;
 	protected $cleanUp = false;
+	protected $filters = array();
 	protected $paths = array();
 	protected $assets = array();
 
+
+	public function getDisabled() { return $this->disabled; }
+	public function setDisabled($flag) { $this->disabled = (bool) $flag; }
 
 	public function getDebug() { return $this->debug; }
 	public function setDebug($flag) { $this->debug = (bool) $flag; }
@@ -45,7 +50,7 @@ class Settings {
 	public function setAssets(array $assets) { $this->assets = $assets; }
 
 
-	public function __construct($config = null) {
+	public function init($config = null) {
 		if (null !== $config) {
 			if (is_array($config)) {
 				$this->processConfig($config);

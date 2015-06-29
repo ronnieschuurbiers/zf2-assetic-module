@@ -60,13 +60,15 @@ class Listener implements ListenerAggregateInterface
 		/** @var Settings $settings */
 		$settings = $sm->get('ZF2Assetic\Settings');
 
-		$asseticService->cleanup($settings);
+		if(!$settings->getDisabled()) {
+			$asseticService->cleanup($settings);
 
-		$asseticService->buildAssets($settings);
+			$asseticService->buildAssets($settings);
 
-		$asseticService->writeAssets($settings);
+			$asseticService->writeAssets($settings);
 
-		// Init assets for modules
-		$asseticService->injectAssets($settings, $sm->get('ViewRenderer'));
+			// Init assets for modules
+			$asseticService->injectAssets($settings, $sm->get('ViewRenderer'));
+		}
 	}
 }
