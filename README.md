@@ -79,7 +79,13 @@ If caching is disabled, the ZF2 Assetic module will write the assets to the webs
 
 ### Caching
 
-The ZF2 Assetic module has some basic built-in support for (server side) caching. This is disabled by default, but can be enabled in the configuration. When enabled the module will compare the last modified time of the asset in Assetic and of the asset file on the webserver. Only if the asset in Assetic is newer it will write the asset to the webserver path.
+The ZF2 Assetic module has some basic built-in support for (server side) caching. This is disabled by default, but can be enabled in the configuration.
+
+| **Config key** | **Config value** | **Description** |
+|----------------|------------------|-----------------|
+| `cache`        | `false`          | No caching; files are written to the website on every request. |
+| `cache`        | `lastmodified`   | If the asset in Assetic is newer then the file on the webserver, the asset will be written to the webserver path. |
+| `cache`        | `checksum`       | If the checksum of the dumped asset in Assetic is different from the checksum of the file on the website, the asset will be written to the webserver path. |
 
 
 ### Cache busting

@@ -54,6 +54,7 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 			if($settings->getCacheBusting() === null || $settings->getCacheBusting() !== null && $settings->getCacheBusting() != 'filename') {
 				$assetTargets = array();
 				$dir = $settings->getPaths()['application_root'] . $settings->getPaths()['webserver'];
+
 				if(file_exists($dir)) {
 					foreach($settings->getAssets() as $asset) {
 						$assetTargets[] = $dir . '/' . $asset['target'];
@@ -198,20 +199,27 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 	 * @param $settings Settings
 	 */
 	public function writeAssets($settings) {
-		$dir = $settings->getPaths()['application_root'] . $settings->getPaths()['webserver'];
+		$dir = realpath($settings->getPaths()['application_root'] . $settings->getPaths()['webserver']);
 		$writer = new AssetWriter($dir);
 
 		foreach($this->assetManagers['build']->getNames() as $assetName) {
 			$asset = $this->assetManagers['build']->get($assetName);
+			$assetLocation = realpath($dir . '/' . $asset->getTargetPath());
 
-			$assetExsists = is_file($dir . '/' . $asset->getTargetPath());
-			if($settings->getCache()) {
-				$assetChanged = $assetExsists && filemtime($dir . '/' . $asset->getTargetPath()) < $asset->getLastModified();
+			$assetExists = is_file($assetLocation);
+			if($settings->getCache() !== false) {
+				if($settings->getCache() == 'lastmodified') {
+					$assetChanged = $assetExists && filemtime($assetLocation) < $asset->getLastModified();
+				} else if($settings->getCache() == 'checksum') {
+					$assetHash = hash_file("md5", ($assetLocation), false);
+					$fileHash = hash("md5", $asset->dump(), false);
+					$assetChanged = $assetExists && $assetHash != $fileHash;
+				}
 
-				if (!$assetExsists || $assetChanged) {
+				if (!$assetExists || $assetChanged) {
 					$writer->writeAsset($asset);
 				}
-			} else if($assetExsists && $settings->getAllowOverwrite() || $settings->getAllowOverwrite()) {
+			} else if($assetExists && $settings->getAllowOverwrite() || $settings->getAllowOverwrite()) {
 				$writer->writeAsset($asset);
 			}
 		}
