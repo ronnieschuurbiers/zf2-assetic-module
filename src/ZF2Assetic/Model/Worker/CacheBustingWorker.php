@@ -12,7 +12,7 @@ use Assetic\Factory\Worker\WorkerInterface;
  * @author Ronnie Schuurbiers, Pronexus
  * @license https://github.com/magnetronnie/zf2-assetic-module/blob/master/LICENSE
  */
-class CacheWorker implements WorkerInterface {
+class CacheBustingWorker implements WorkerInterface {
 
 	public function process(AssetInterface $assetOrLeaf, AssetFactory $factory) {
 		if($assetOrLeaf instanceof AssetCollectionInterface) {

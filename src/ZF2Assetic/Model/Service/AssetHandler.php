@@ -34,7 +34,7 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 		$this->assetFactories[$id]	= new AssetFactory($settings->getPaths()['application_root']);
 
 		if($settings->getCacheBusting() !== null && $settings->getCacheBusting() == 'filename') {
-			$worker = $this->getServiceLocator()->get('ZF2Assetic\CacheWorker');
+			$worker = $this->getServiceLocator()->get('ZF2Assetic\CacheBustingWorker');
 			$this->assetFactories[$id]->addWorker($worker);
 		}
 
@@ -54,44 +54,45 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 			if($settings->getCacheBusting() === null || $settings->getCacheBusting() !== null && $settings->getCacheBusting() != 'filename') {
 				$assetTargets = array();
 				$dir = $settings->getPaths()['application_root'] . $settings->getPaths()['webserver'];
+				if(file_exists($dir)) {
+					foreach($settings->getAssets() as $asset) {
+						$assetTargets[] = $dir . '/' . $asset['target'];
+					}
 
-				foreach($settings->getAssets() as $asset) {
-					$assetTargets[] = $dir . '/' . $asset['target'];
-				}
-
-				// Delete files
-				if($dirPath = realpath($dir)) {
-					$di = new \RecursiveDirectoryIterator($dirPath);
-					$di->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
-					foreach (new \RecursiveIteratorIterator($di) as $filelocation => $file) {
-						if(!in_array($filelocation, $assetTargets)) {
-							if($path = realpath($filelocation)){
-								if(file_exists($path)){
-									if(is_writable($path)){
-										if(!unlink($path)){
-											throw new \Exception('Couldn\'t delete file ' . $path . '.');
+					// Delete files
+					if($dirPath = realpath($dir)) {
+						$di = new \RecursiveDirectoryIterator($dirPath);
+						$di->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
+						foreach (new \RecursiveIteratorIterator($di) as $filelocation => $file) {
+							if(!in_array($filelocation, $assetTargets)) {
+								if($path = realpath($filelocation)){
+									if(file_exists($path)){
+										if(is_writable($path)){
+											if(!unlink($path)){
+												throw new \Exception('Couldn\'t delete file ' . $path . '.');
+											}
+										} else {
+											throw new \Exception('Not enough access to delete file ' . $path . '.');
 										}
-									} else {
-										throw new \Exception('Not enough access to delete file ' . $path . '.');
 									}
+								} else {
+									throw new \Exception('Couldn\'t access file ' . $filelocation . '.');
 								}
-							} else {
-								throw new \Exception('Couldn\'t access file ' . $filelocation . '.');
 							}
 						}
-					}
 
-					// Delete empty directories
-					$di = new \RecursiveDirectoryIterator($dirPath, \RecursiveDirectoryIterator::SKIP_DOTS);
-					$directories = new \ParentIterator($di);
-					foreach (new \RecursiveIteratorIterator($directories, \RecursiveIteratorIterator::CHILD_FIRST) as $dir) {
-						if (iterator_count($di->getChildren()) === 0) {
-							$realpath = realpath($dir->getPathname());
-							rmdir($realpath);
+						// Delete empty directories
+						$di = new \RecursiveDirectoryIterator($dirPath, \RecursiveDirectoryIterator::SKIP_DOTS);
+						$directories = new \ParentIterator($di);
+						foreach (new \RecursiveIteratorIterator($directories, \RecursiveIteratorIterator::CHILD_FIRST) as $dir) {
+							if (iterator_count($di->getChildren()) === 0) {
+								$realpath = realpath($dir->getPathname());
+								rmdir($realpath);
+							}
 						}
+					} else {
+						throw new \Exception('Couldn\'t access directory ' . $dir . '.');
 					}
-				} else {
-					throw new \Exception('Couldn\'t access directory ' . $dir . '.');
 				}
 			}
 		}
