@@ -199,7 +199,7 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 	 * @param $settings Settings
 	 */
 	public function writeAssets($settings) {
-		$dir = realpath($settings->getPaths()['application_root'] . $settings->getPaths()['webserver']);
+		$dir = $settings->getPaths()['application_root'] . $settings->getPaths()['webserver'];
 		$writer = new AssetWriter($dir);
 
 		foreach($this->assetManagers['build']->getNames() as $assetName) {
@@ -208,12 +208,15 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 
 			$assetExists = is_file($assetLocation);
 			if($settings->getCache() !== false) {
-				if($settings->getCache() == 'lastmodified') {
-					$assetChanged = $assetExists && filemtime($assetLocation) < $asset->getLastModified();
-				} else if($settings->getCache() == 'checksum') {
-					$assetHash = hash_file("md5", ($assetLocation), false);
-					$fileHash = hash("md5", $asset->dump(), false);
-					$assetChanged = $assetExists && $assetHash != $fileHash;
+				$assetChanged = false;
+				if($assetExists) {
+					if($settings->getCache() == 'lastmodified') {
+						$assetChanged = $assetExists && filemtime($assetLocation) < $asset->getLastModified();
+					} else if($settings->getCache() == 'checksum') {
+						$assetHash = hash_file("md5", ($assetLocation), false);
+						$fileHash = hash("md5", $asset->dump(), false);
+						$assetChanged = $assetExists && $assetHash != $fileHash;
+					}
 				}
 
 				if (!$assetExists || $assetChanged) {
@@ -231,31 +234,46 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 	 */
 	public function injectAssets($settings, $renderer) {
 		foreach($settings->getAssets() as $assetName => $asset) {
-			switch($asset['viewHelper']) {
-				case 'HeadLink':
-					$headLinkParams = array(
-						'href' => $this->formatAssetLocation($settings, $assetName),
-						// Let's assume it's css.
-						'rel' => 'stylesheet',
-						'type' => 'text/css'
-					);
-					if(isset($asset['viewHelperOptions'])) {
-						$headLinkParams = array_merge($headLinkParams, $asset['viewHelperOptions']);
-					}
-					// We're not using appendStylesheet, because it will force rel='stylesheet' even when it's overriden in the $extras parameter.
-					$headLink = $renderer->plugin('HeadLink');
-					$headLink($headLinkParams, 'APPEND');
-					break;
-				case 'HeadStyle':
-					$renderer->plugin('HeadStyle')->appendStyle($this->assetManagers['nobuild']->get($assetName)->dump());
-					break;
-				case 'HeadScript':
-					if(isset($asset['target'])) {
-						$renderer->plugin('HeadScript')->appendFile($this->formatAssetLocation($settings, $assetName));
-					} else {
-						$renderer->plugin('HeadScript')->appendScript($this->assetManagers['nobuild']->get($assetName)->dump());
-					}
-					break;
+			if(isset($asset['viewHelper'])) {
+				switch($asset['viewHelper']) {
+					case 'HeadLink':
+						$headLink = $renderer->plugin('HeadLink');
+						// Due to a bug in ZF2, it's not possible to have both $extras AND $conditionalStylesheet
+						//  (when using appendStylesheet it will force rel='stylesheet' even when it's overriden in the $extras parameter)
+						if(isset($asset['viewHelperOptions']['conditional'])) {
+							$headLink->appendStylesheet(
+								$this->formatAssetLocation($settings, $assetName),
+								'screen',
+								$asset['viewHelperOptions']['conditional'],
+								array()
+							);
+						} else {
+							$headLinkParams = array(
+								'href' => $this->formatAssetLocation($settings, $assetName),
+								// Let's assume it's css.
+								'rel' => 'stylesheet',
+								'type' => 'text/css'
+							);
+							if(isset($asset['viewHelperOptions'])) {
+								$headLinkParams = array_merge($headLinkParams, $asset['viewHelperOptions']);
+							}
+							$headLink($headLinkParams, 'APPEND');
+						}
+					case 'HeadStyle':
+						$renderer->plugin('HeadStyle')->appendStyle($this->assetManagers['nobuild']->get($assetName)->dump());
+						break;
+					case 'HeadScript':
+						$type	= (isset($asset['viewHelperType']) ? $asset['viewHelperType'] : 'text/javascript');
+						$attrs	= (isset($asset['viewHelperOptions']) ? $asset['viewHelperOptions'] : array());
+						if(isset($asset['target'])) {
+							$src	= $this->formatAssetLocation($settings, $assetName);
+							$renderer->plugin('HeadScript')->appendFile($src, $type, $attrs);
+						} else {
+							$script	= $this->assetManagers['nobuild']->get($assetName)->dump();
+							$renderer->plugin('HeadScript')->appendScript($script, $type, $attrs);
+						}
+						break;
+				}
 			}
 		}
 	}

@@ -31,8 +31,7 @@ class Listener implements ListenerAggregateInterface
 	 * {@inheritDoc}
 	 */
 	public function attach(EventManagerInterface $events) {
-		$this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH, array($this, 'handleAssets'), 32);
-		$this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'handleAssets'), 32);
+		$this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH, array($this, 'handleAssets'), -10000);
 	}
 
 	/**
