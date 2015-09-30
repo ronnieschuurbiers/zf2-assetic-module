@@ -233,7 +233,16 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 	 * @param $renderer RendererInterface
 	 */
 	public function injectAssets($settings, $renderer) {
-		foreach($settings->getAssets() as $assetName => $asset) {
+		$assets = $settings->getAssets();
+
+		// Sort assets by priority
+		foreach ($assets as $key => $row) {
+			$assetsSorting[$key] = isset($row['priority']) ? $row['priority'] : count($assets);
+		}
+		array_multisort($assetsSorting, SORT_ASC, $assets);
+
+		// Inject assets
+		foreach($assets as $assetName => $asset) {
 			if(isset($asset['viewHelper'])) {
 				switch($asset['viewHelper']) {
 					case 'HeadLink':

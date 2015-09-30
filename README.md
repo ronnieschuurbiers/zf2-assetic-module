@@ -165,6 +165,7 @@ Assets are configured in any module's `module.config.php`.
 			'filters' => array(
 				'?CssMinFilter',
 			),
+			'priority' => 1,
 		),
 		'javascript' => array(
 			...
@@ -173,13 +174,14 @@ Assets are configured in any module's `module.config.php`.
 ),
 ```
 
-| **Key** | **Description** |
-|-----------------|-----------------------------------|
+| **Key**    | **Description** |
+|------------|-----------------------------------|
 | assets     | An array of assets. Use unique names unless you want to merge assets from different module together. |
 | target     | The file name of the target asset that will be created on the webserver. Remove this to display assets as text instead of links in the html. |
 | viewHelper | Zend plugin to use for this asset (see below) |
 | leafs      | Leafs are the source files in the module's asset directory. |
 | filters    | An array of filter names (as defined in the module configuration) that should be applied to this asset. Add a question mark to prevent this filter during debugging. |
+| priority   | A priority can be used to control the order in which the assets appear in the `<head>` (see below). By default assets are displayed in the `<head>` in the same order as they are in the config file. Assets with a priority are displayed before assets without a priority. |
 
 
 ## Displaying assets
