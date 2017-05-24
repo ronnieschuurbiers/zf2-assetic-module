@@ -235,56 +235,58 @@ class AssetHandler implements ServiceLocatorAwareInterface {
 	public function injectAssets($settings, $renderer) {
 		$assets = $settings->getAssets();
 
-		// Sort assets by priority
-		foreach ($assets as $key => $row) {
-			$assetsSorting[$key] = isset($row['priority']) ? $row['priority'] : count($assets);
-		}
-		array_multisort($assetsSorting, SORT_ASC, $assets);
+		if(!empty($assets)) {
+            // Sort assets by priority
+            foreach ($assets as $key => $row) {
+                $assetsSorting[$key] = isset($row['priority']) ? $row['priority'] : count($assets);
+            }
+            array_multisort($assetsSorting, SORT_ASC, $assets);
 
-		// Inject assets
-		foreach($assets as $assetName => $asset) {
-			if(isset($asset['viewHelper'])) {
-				switch($asset['viewHelper']) {
-					case 'HeadLink':
-						$headLink = $renderer->plugin('HeadLink');
-						// Due to a bug in ZF2, it's not possible to have both $extras AND $conditionalStylesheet
-						//  (when using appendStylesheet it will force rel='stylesheet' even when it's overriden in the $extras parameter)
-						if(isset($asset['viewHelperOptions']['conditional'])) {
-							$headLink->appendStylesheet(
-								$this->formatAssetLocation($settings, $assetName),
-								'screen',
-								$asset['viewHelperOptions']['conditional'],
-								array()
-							);
-						} else {
-							$headLinkParams = array(
-								'href' => $this->formatAssetLocation($settings, $assetName),
-								// Let's assume it's css.
-								'rel' => 'stylesheet',
-								'type' => 'text/css'
-							);
-							if(isset($asset['viewHelperOptions'])) {
-								$headLinkParams = array_merge($headLinkParams, $asset['viewHelperOptions']);
-							}
-							$headLink($headLinkParams, 'APPEND');
-						}
-					case 'HeadStyle':
-						$renderer->plugin('HeadStyle')->appendStyle($this->assetManagers['nobuild']->get($assetName)->dump());
-						break;
-					case 'HeadScript':
-						$type	= (isset($asset['viewHelperType']) ? $asset['viewHelperType'] : 'text/javascript');
-						$attrs	= (isset($asset['viewHelperOptions']) ? $asset['viewHelperOptions'] : array());
-						if(isset($asset['target'])) {
-							$src	= $this->formatAssetLocation($settings, $assetName);
-							$renderer->plugin('HeadScript')->appendFile($src, $type, $attrs);
-						} else {
-							$script	= $this->assetManagers['nobuild']->get($assetName)->dump();
-							$renderer->plugin('HeadScript')->appendScript($script, $type, $attrs);
-						}
-						break;
-				}
-			}
-		}
+            // Inject assets
+            foreach ($assets as $assetName => $asset) {
+                if (isset($asset['viewHelper'])) {
+                    switch ($asset['viewHelper']) {
+                        case 'HeadLink':
+                            $headLink = $renderer->plugin('HeadLink');
+                            // Due to a bug in ZF2, it's not possible to have both $extras AND $conditionalStylesheet
+                            //  (when using appendStylesheet it will force rel='stylesheet' even when it's overriden in the $extras parameter)
+                            if (isset($asset['viewHelperOptions']['conditional'])) {
+                                $headLink->appendStylesheet(
+                                    $this->formatAssetLocation($settings, $assetName),
+                                    'screen',
+                                    $asset['viewHelperOptions']['conditional'],
+                                    array()
+                                );
+                            } else {
+                                $headLinkParams = array(
+                                    'href' => $this->formatAssetLocation($settings, $assetName),
+                                    // Let's assume it's css.
+                                    'rel' => 'stylesheet',
+                                    'type' => 'text/css'
+                                );
+                                if (isset($asset['viewHelperOptions'])) {
+                                    $headLinkParams = array_merge($headLinkParams, $asset['viewHelperOptions']);
+                                }
+                                $headLink($headLinkParams, 'APPEND');
+                            }
+                        case 'HeadStyle':
+                            $renderer->plugin('HeadStyle')->appendStyle($this->assetManagers['nobuild']->get($assetName)->dump());
+                            break;
+                        case 'HeadScript':
+                            $type = (isset($asset['viewHelperType']) ? $asset['viewHelperType'] : 'text/javascript');
+                            $attrs = (isset($asset['viewHelperOptions']) ? $asset['viewHelperOptions'] : array());
+                            if (isset($asset['target'])) {
+                                $src = $this->formatAssetLocation($settings, $assetName);
+                                $renderer->plugin('HeadScript')->appendFile($src, $type, $attrs);
+                            } else {
+                                $script = $this->assetManagers['nobuild']->get($assetName)->dump();
+                                $renderer->plugin('HeadScript')->appendScript($script, $type, $attrs);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
 	}
 
 	/**
