@@ -32,7 +32,7 @@ class Settings {
 	public function setAllowOverwrite($flag) { $this->allowOverwrite = (bool) $flag; }
 
 	public function getCache() { return $this->cache; }
-	public function setCache($flag) { $this->cache = (bool) $flag; }
+    public function setCache($cache) { $this->cache = $cache; }
 
 	public function getCacheBusting() { return $this->cacheBusting; }
 	public function setCacheBusting($cacheBusting) { $this->cacheBusting = $cacheBusting; }

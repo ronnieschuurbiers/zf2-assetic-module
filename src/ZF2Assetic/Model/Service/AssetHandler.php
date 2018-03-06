@@ -269,6 +269,7 @@ class AssetHandler implements ServiceLocatorAwareInterface {
                                 }
                                 $headLink($headLinkParams, 'APPEND');
                             }
+                            break;
                         case 'HeadStyle':
                             $renderer->plugin('HeadStyle')->appendStyle($this->assetManagers['nobuild']->get($assetName)->dump());
                             break;
